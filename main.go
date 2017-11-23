@@ -23,11 +23,17 @@ func main() {
 	s.Header = h
 
 	for {
-		reader := bufio.NewReader(os.Stdin)
+
 		fmt.Print("Enter command: ")
-		text, _ := reader.ReadString('\n')
+		text := getStdIn()
 		sendCommand(text, s)
 	}
+}
+
+func getStdIn() string {
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	return cleanCommand(text)
 }
 
 type CommandRequest struct {
@@ -35,11 +41,15 @@ type CommandRequest struct {
 }
 
 func sendCommand(command string, s napping.Session) {
+	if command == "shutdown code" {
+		command += handleShutdownCommand()
+	}
+
 	data := CommandRequest{Command: cleanCommand(command)}
 
 	resp, err := s.Post(EffectsServer+"/command", &data, nil, nil)
 	if err != nil {
-		fmt.Print(err)
+		fmt.Println(err)
 		return
 	}
 
@@ -48,4 +58,10 @@ func sendCommand(command string, s napping.Session) {
 
 func cleanCommand(command string) string {
 	return strings.ToLower(strings.TrimSpace(command))
+}
+
+func handleShutdownCommand() string {
+	fmt.Println(">>> Warning, too many wrong guesses will cause problems!")
+	fmt.Print("Enter code: ")
+	return getStdIn()
 }
