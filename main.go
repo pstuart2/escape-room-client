@@ -42,7 +42,7 @@ type CommandRequest struct {
 
 func sendCommand(command string, s napping.Session) {
 	if command == "shutdown code" {
-		command += handleShutdownCommand()
+		command += " " + handleShutdownCommand()
 	}
 
 	data := CommandRequest{Command: cleanCommand(command)}
